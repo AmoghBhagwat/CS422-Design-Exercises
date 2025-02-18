@@ -92,15 +92,14 @@ VOID PredicatedInstructionAnalysis(
     UINT64 memWriteCount,
     ADDRDELTA minDisp,
     ADDRDELTA maxDisp,
-    UINT32 memOpCount,
-    UINT32 isMemOp
+    UINT64 isMemOp
 ) {
     instructionMetrics[category]++;
     instructionMetrics[LOAD] += loadSize;
     instructionMetrics[STORE] += storeSize;
-    memOperandCountResults[memReadCount + memWriteCount] += isMemOp;
-    memReadCountResults[memReadCount]++;
-    memWriteCountResults[memWriteCount]++;
+    memOperandCountResults[memReadCount + memWriteCount]++;
+    memReadCountResults[memReadCount] += isMemOp;
+    memWriteCountResults[memWriteCount] += isMemOp;
     minDisplacement = (minDisp < minDisplacement) ? minDisp : minDisplacement;
     maxDisplacement = (maxDisp > maxDisplacement) ? maxDisp : maxDisplacement;
 }
@@ -121,8 +120,7 @@ VOID InstructionAnalysis(
     maxImmediate = (maxImm > maxImmediate) ? maxImm : maxImmediate;
     minImmediate = (minImm < minImmediate) ? minImm : minImmediate;
 
-    totalMemBytes += instructionLength;
-    for (UINT64 block = (instructionPointer >> 5); block < (((instructionPointer + instructionLength) >> 5) + ((instructionPointer + instructionLength) % 32 != 0)); block++) {
+    for (UINT64 block = (instructionPointer >> 5); block < ((instructionPointer + instructionLength + 31) >> 5); block++) {
         instructionBlocks.insert(block);
     }
 }
@@ -210,7 +208,7 @@ VOID InstrumentInstruction(INS ins) {
         maxDisp = (displacement > maxDisp) ? displacement : maxDisp;
 
         INS_InsertIfCall(ins, IPOINT_BEFORE, (AFUNPTR) CheckFastForward, IARG_END);
-        INS_InsertThenPredicatedCall(ins, IPOINT_BEFORE, (AFUNPTR) MemoryBlockAnalysis, IARG_MEMORYOP_EA, memOp, IARG_MEMORYREAD_SIZE, IARG_END);
+        INS_InsertThenPredicatedCall(ins, IPOINT_BEFORE, (AFUNPTR) MemoryBlockAnalysis, IARG_MEMORYOP_EA, memOp, IARG_MEMORYOP_SIZE, memOp, IARG_END);
     }
 
     for (UINT32 i = 0; i < INS_OperandCount(ins); i++) {
@@ -230,7 +228,7 @@ VOID InstrumentInstruction(INS ins) {
         IARG_UINT64, (UINT64) memWriteCount,
         IARG_ADDRINT, (ADDRINT) minDisp,
         IARG_ADDRINT, (ADDRINT) maxDisp,
-        IARG_UINT32, (UINT32) (INS_IsMemoryRead(ins) || INS_IsMemoryWrite(ins)),
+        IARG_UINT64, (UINT64) (INS_IsMemoryRead(ins) || INS_IsMemoryWrite(ins)),
         IARG_END
     );
 
@@ -241,8 +239,8 @@ VOID InstrumentInstruction(INS ins) {
         IARG_UINT64, (UINT64) INS_OperandCount(ins),
         IARG_UINT64, (UINT64) INS_MaxNumRRegs(ins),
         IARG_UINT64, (UINT64) INS_MaxNumWRegs(ins),
-        IARG_ADDRINT, (ADDRINT) minImm,
-        IARG_ADDRINT, (ADDRINT) maxImm,
+        IARG_ADDRINT, (INT32) minImm,
+        IARG_ADDRINT, (INT32) maxImm,
         IARG_END
     );
 }
