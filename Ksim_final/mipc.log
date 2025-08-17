@@ -1,0 +1,15 @@
+80847 1:<FETCH> 
+80847 1:<FETCH> ************************************************************
+80847 1:<FETCH> 
+80847 1:<FETCH> Number of instructions: 80652
+80847 1:<FETCH> Number of simulated cycles: 80847
+80847 1:<FETCH> CPI: 1.00
+80847 1:<FETCH> Int Conditional Branches: 17021
+80847 1:<FETCH> Jump and Link: 1025
+80847 1:<FETCH> Jump Register: 1211
+80847 1:<FETCH> Number of fp instructions: 126
+80847 1:<FETCH> Number of loads: 14537
+80847 1:<FETCH> Number of syscall emulated loads: 2064
+80847 1:<FETCH> Number of stores: 6976
+80847 1:<FETCH> Number of syscall emulated stores: 50
+80847 1:<FETCH> 

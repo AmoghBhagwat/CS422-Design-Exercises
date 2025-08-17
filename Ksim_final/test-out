@@ -1,0 +1,8 @@
+Does a mips-sgi-irix5 binary work on an x86?
+In spite of what libbfd docs say?
+Your host seems to be of type big-endian
+sum[5] = 16
+sum[4] = 11
+sum[3] = 7
+sum[2] = 4
+sum[1] = 2
